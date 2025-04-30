@@ -1,0 +1,66 @@
+{% extends "devices/base.html" %}
+
+{% block title %}{{ device.name }} - {{ device.serial_number }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>{{ device.get_name_display }} - {{ device.serial_number }}</h2>
+    <div>
+        <a href="{% url 'device_update' device.pk %}" class="btn btn-primary">Редактировать</a>
+        <a href="{% url 'device_delete' device.pk %}" class="btn btn-danger">Удалить</a>
+        <a href="{% url 'device_list' %}" class="btn btn-secondary">Назад к списку</a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">Информация о средстве измерения</h5>
+        <table class="table">
+            <tr>
+                <th>Тип средства измерения:</th>
+                <td>{{ device.device_type }}</td>
+            </tr>
+            <tr>
+                <th>Производитель:</th>
+                <td>{{ device.manufacturer }}</td>
+            </tr>
+            <tr>
+                <th>Владелец:</th>
+                <td>{{ device.owner_department }}</td>
+            </tr>
+            <tr>
+                <th>Местоположение:</th>
+                <td>{{ device.location }}</td>
+            </tr>
+            <tr>
+                <th>Ответственный:</th>
+                <td>{{ device.responsible_person }}</td>
+            </tr>
+            <tr>
+                <th>Дата последней поверки:</th>
+                <td>{{ device.last_calibration_date }}</td>
+            </tr>
+            <tr>
+                <th>Дата следующей поверки:</th>
+                <td>{{ device.next_calibration_date }}</td>
+            </tr>
+            <tr>
+                <th>Периодичность поверки:</th>
+                <td>{{ device.get_calibration_interval }}</td>
+            </tr>
+            <tr>
+                <th>Статус:</th>
+                <td><span class="badge {{ device.get_status_label_class }}">{{ device.get_status_display }}</span></td>
+            </tr>
+            <tr>
+                <th>Номер свидетельства:</th>
+                <td>{{ device.certificate_number }}</td>
+            </tr>
+            <tr>
+                <th>Примечание:</th>
+                <td>{{ device.notes }}</td>
+            </tr>
+        </table>
+    </div>
+</div>
+{% endblock %}
