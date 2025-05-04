@@ -1,0 +1,44 @@
+{% extends "devices/base.html" %}
+{% block title %}Просроченные поверки{% endblock %}
+{% block content %}
+
+<h2>Просроченные СИ</h2>
+
+{% if devices %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Наименование</th>
+                <th>Заводской номер</th>
+                <th>Диапазон</th>
+                <th>Принадлежность</th>
+                <th>Место установки</th>
+                <th>Ответственный</th>
+                <th>Дата следующей поверки</th>
+                <th>Дней просрочено</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for device in devices %}
+                <tr>
+                    <td><a href="{% url 'device_detail' device.pk %}">{{ device.name }}</a></td>
+                    <td>{{ device.serial_number }}</td>
+                    <td>{{ device.measure_range }}{{ device.measurement_unit }}</td>
+                    <td>{{ device.owner_department }}</td>
+                    <td>{{ device.location }}</td>
+                    <td>{{ device.responsible_person.last_name }}</td>
+                    <td>{{ device.next_calibration_date|date:"d.m.Y" }}</td>
+                    <td>
+                        <span class="badge bg-danger">
+                            {{ device.next_calibration_date|timesince:today }}
+                        </span>
+                    </td>
+                </tr>
+                {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+<p>Нет просроченных СИ</p>
+{% endif %}
+
+{% endblock %}

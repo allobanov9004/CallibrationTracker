@@ -1,0 +1,28 @@
+{% extends 'devices/base.html' %}
+{% block title %}Уведомления{% endblock %}
+
+{% block content %}
+
+<h2>Уведомления</h2>
+
+{% if notifications %}
+    <ul class="list-group">
+        {% for notification in notifications %}
+            <li class="list-group-item {% if not notification.is_read %}unread{% endif %}">
+                <strong>{{ notification.title }}</strong>
+                <p>{{ notification.message }}</p>
+                <small class="text-muted">{{ notification.created_at|date:"d.m.Y H:i" }}</small>
+                {% if notification.related_device %}
+                <br>
+                <a href="{% url 'device_detail' notification.related_device.pk %}">
+                    Перейти к прибору
+                </a>
+            {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>Уведомлений нет</p>
+{% endif %}
+
+{% endblock %}

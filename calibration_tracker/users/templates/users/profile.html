@@ -1,0 +1,89 @@
+{% extends 'devices/base.html' %}
+{% block title %}Профиль пользователя{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="text-center">Профиль {{ user.username }}</h2>
+                </div>
+                <div class="card-body">
+
+                    {% if form.errors %}
+                        <div class="alert alert-danger">
+                            Пожалуйста, исправьте следующие ошибки:
+                            <ul>
+                                {% for field, errors in form.errors.items %}
+                                    {% for error in errors %}
+                                        <li>{{ error }}</li>
+                                    {% endfor %}
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+
+                        <div class="form-group mb-3">
+                            <label for="{{ form.first_name.id_for_label }}">Имя</label>
+                            {{ form.first_name }}
+                            {% if form.first_name.help_text %}
+                                <small class="form-text text-muted">{{ form.first_name.help_text }}</small>
+                            {% endif %}
+                            {% if form.first_name.errors %}
+                                <div class="alert alert-danger">{{ form.first_name.errors }}</div>
+                            {% endif %}
+                        </div>
+
+
+                        <div class="form-group mb-3">
+                            <label for="{{ form.last_name.id_for_label }}">Фамилия</label>
+                            {{ form.last_name }}
+                            {% if form.last_name.help_text %}
+                                <small class="form-text text-muted">{{ form.last_name.help_text }}</small>
+                            {% endif %}
+                            {% if form.last_name.errors %}
+                                <div class="alert alert-danger">{{ form.last_name.errors }}</div>
+                            {% endif %}
+                        </div>
+
+
+                        <div class="form-group mb-3">
+                            <label for="{{ form.email.id_for_label }}">Email</label>
+                            {{ form.email }}
+                            {% if form.email.help_text %}
+                                <small class="form-text text-muted">{{ form.email.help_text }}</small>
+                            {% endif %}
+                            {% if form.email.errors %}
+                                <div class="alert alert-danger">{{ form.email.errors }}</div>
+                            {% endif %}
+                        </div>
+
+
+                        {% if form.department %}
+                            <div class="form-group mb-3">
+                                <label for="{{ form.department.id_for_label }}">Подразделение</label>
+                                {{ form.department }}
+                                {% if form.department.help_text %}
+                                    <small class="form-text text-muted">{{ form.department.help_text }}</small>
+                                {% endif %}
+                                {% if form.department.errors %}
+                                    <div class="alert alert-danger">{{ form.department.errors }}</div>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+
+
+                        <button type="submit" class="btn btn-primary w-100">Сохранить</button>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

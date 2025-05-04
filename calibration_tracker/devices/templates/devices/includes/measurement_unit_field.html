@@ -1,0 +1,5 @@
+{{ form.measurement_unit.label_tag }}
+{{ form.measurement_unit }}
+{% if form.measurement_unit.errors %}
+    <div class="text-danger">{{ form.measurement_unit.errors }}</div>
+{% endif %}

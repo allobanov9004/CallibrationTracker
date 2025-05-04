@@ -6,7 +6,9 @@
 <h2>Средства измерений</h2>
 
 <div class="mb-3">
+    {% if request.user.profile.role != 'worker' %}
     <a href="{% url 'device_create' %}" class="btn btn-primary">Добавить средство измерения</a>
+    {% endif %}
 </div>
 
 <form method="get" class="mb-4">
@@ -30,6 +32,7 @@
             <option value="valid" {% if status == 'valid' %}selected{% endif %}>Актуально</option>
             <option value="overdue" {% if status == 'overdue' %}selected{% endif %}>Просрочено</option>
             <option value="storage" {% if status == 'storage' %}selected{% endif %}>Хранение</option>
+            <option value="calibrarion" {% if status == 'calibration' %}selected{% endif %}>В поверке</option>
         </select>
     </div>
 
@@ -45,26 +48,37 @@
             <th>Наименование</th>
             <th>Тип</th>
             <th>Заводской номер</th>
+            <th>Диапазон</th>
             <th>Принадлежность</th>
             <th>Дата поверки</th>
             <th>Дата следующей поверки</th>
             <th>Статус</th>
+            <th></th>
         </tr>
     </thead>
     <tbody>
         {% for device in devices %}
         <tr style="cursor: pointer;" onclick="window.location='{% url 'device_detail' device.pk %}'">
-            <td>{{ device.get_name_display }}</td>
+            <td>{{ device.name }}</td>
             <td>{{ device.device_type }}</td>
             <td>{{ device.serial_number }}</td>
+            <td>{{device.measure_range  }} {{ device.measurement_unit }}</td>
             <td>{{ device.owner_department }}</td>
             <td>{{ device.last_calibration_date }}</td>
             <td>{{ device.next_calibration_date }}</td>
+
             <td><span class="badge {{ device.get_status_label_class }}">{{ device.get_status_display }}</span></td>
-        </tr>
+            <td>
+                {% if device.can_edit %}
+                    <a href="{% url 'device_update' device.pk %}" class="btn btn-sm btn-outline-primary">✏️</a>
+                {% endif %}
+            </td>
+       </tr>
         {% endfor %}
     </tbody>
 </table>
+
+<a href="{% url 'overdue_devices' %}" class="btn btn-warning mt-3">Просроченные поверки</a>
 {% endblock %}
 
 
