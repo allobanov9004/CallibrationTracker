@@ -1,8 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
-from datetime import timedelta
 from dateutil.relativedelta import relativedelta
+from devices.constants import MEASURE_TYPE, STATUS, STATUS_LABEL_CLASS, STATUS_DISPLAY
 
 
 class Department(models.Model):
@@ -14,24 +14,8 @@ class Department(models.Model):
 
 
 class MeasurementDevice(models.Model):
-    MEASURE_TYPE = [
-        ('pressure', 'Давление'),
-        ('thermal', 'Теплотехнические величины'),
-        ('electrical', 'Электрические величины'),
-        ('linear_and_angular_dimensions', 'Линейные и угловые размеры'),
-        ('mechanical', 'Механические величины'),
-        ('flow', 'Расход'),
-        ('other', 'Другое'),
-    ]
-
-    STATUS = [
-        ('valid', 'Действующий'),
-        ('overdue', 'Просрочен'),
-        ('storage', 'Хранение'),
-        ('calibration', 'В поверке'),
-        ('calibration_done', 'Поверено'),
-        ('rejected', 'Не пригодно к применению'),
-    ]
+    MEASURE_TYPE = MEASURE_TYPE
+    STATUS = STATUS
 
     name = models.CharField('Наименование', max_length=255)
     device_type = models.CharField('Тип средства измерения', max_length=255)
@@ -68,22 +52,10 @@ class MeasurementDevice(models.Model):
 
     def get_status_display(self):
         status = self.get_status()
-        return {
-            'valid': 'Актуально',
-            'overdue': 'Просрочено',
-            'storage': 'Хранение',
-            'calibration': 'В поверке',
-            'rejected': 'Забраковано'
-        }[status]
+        return STATUS_DISPLAY[status]
 
     def get_status_label_class(self):
-        return {
-            'valid': 'bg-success',
-            'overdue': 'bg-danger',
-            'storage': 'bg-secondary',
-            'calibration': 'bg-info',
-            'rejected': 'bg-dark'
-        }[self.get_status()]
+        return STATUS_LABEL_CLASS[self.get_status()]
 
     def get_calibration_interval(self):
         if self.calibration_interval:
@@ -95,7 +67,6 @@ class MeasurementDevice(models.Model):
         if self.last_calibration_date and self.calibration_interval:
             # Добавляем количество месяцев к дате последней поверки
             self.next_calibration_date = self.last_calibration_date + relativedelta(months=self.calibration_interval)
-        
         super().save(*args, **kwargs)
 
     

@@ -1,14 +1,15 @@
 from django import forms
 from .models import MeasurementDevice
+from devices.constants import UNIT_CHOICES
 
 class MeasurementDeviceForm(forms.ModelForm):
     # Списки единиц измерений
-    ELECTRICAL_UNITS = ['В', 'А', 'Ом', 'Вт', 'Гц']
-    PRESSURE_UNITS = ['кгс/см²', 'кПа', 'бар', 'МПа', 'атм']
-    THERMAL_UNITS = ['°C', 'K']
-    LINEAR_UNITS = ['мм', 'см', 'м', '°']
-    MECHANICAL_UNITS = ['Н', 'кН', 'кг', 'г']
-    FLOW_UNITS = ['м³/ч', 'л/мин', 'м³/с']
+    ELECTRICAL_UNITS = UNIT_CHOICES['electrical']
+    PRESSURE_UNITS = UNIT_CHOICES['pressure']
+    THERMAL_UNITS = UNIT_CHOICES['thermal']
+    LINEAR_UNITS = UNIT_CHOICES['linear_and_angular_dimensions']
+    MECHANICAL_UNITS = UNIT_CHOICES['mechanical']
+    FLOW_UNITS = UNIT_CHOICES['flow']
 
     custom_unit = forms.CharField(
         max_length=255,
