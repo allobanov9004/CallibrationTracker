@@ -1,89 +1,121 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import MeasurementDevice
-from django.db.models import Q
-from django.utils import timezone
 from .forms import MeasurementDeviceForm
 from django.contrib.auth.decorators import login_required
+from .utils import get_overdue_devices
+from datetime import date
+from users.views import has_edit_permission
+from django.core.exceptions import PermissionDenied
+from .forms import MeasurementDeviceForm
+from .decorators import worker_cannot_create
 
 
-
-@login_required
+@worker_cannot_create
 def device_create(request):
     if request.method == 'POST':
-        form = MeasurementDeviceForm(request.POST, request.FILES)
+        form = MeasurementDeviceForm(request.POST, request.FILES, user=request.user)
+
+        if 'measure_type' in request.POST and 'final_submit' not in request.POST:
+            measure_type = request.POST.get('measure_type')
+            form._update_measurement_unit_field(measure_type)
+            return render(request, 'devices/device_form.html', {'form': form})
+
         if form.is_valid():
-            form.save()
-            return redirect('device_list')
+            device = form.save(commit=False)
+            try:
+                profile = request.user.profile
+                if profile.role == 'storekeeper':
+                    device.responsible_person = request.user
+                    device.owner_department = profile.department
+            except Profile.DoesNotExist:
+                pass
+            device.save()
+            return redirect('device_detail', pk=device.pk)
     else:
-        form = MeasurementDeviceForm()
+        form = MeasurementDeviceForm(user=request.user)
+
 
     return render(request, 'devices/device_form.html', {'form': form})
+
 
 @login_required
 def device_update(request, pk):
     device = get_object_or_404(MeasurementDevice, pk=pk)
+
+    if not has_edit_permission(request.user, device):
+        raise PermissionDenied("У вас нет прав редактировать это средство измерения")
+
     if request.method == 'POST':
-        form = MeasurementDeviceForm(request.POST, request.FILES, instance=device)
+        form = MeasurementDeviceForm(
+            data=request.POST,
+            files=request.FILES,
+            instance=device,
+            user=request.user
+        )
+
+        if 'measure_type' in request.POST:
+            measure_type = request.POST.get('measure_type')
+            form._update_measurement_unit_field(measure_type)
+            return render(request, 'devices/device_form.html', {'form': form})
+
+
         if form.is_valid():
             form.save()
-            return redirect('device_detail', pk=device.pk)
+            return redirect('device_detail', pk=device.user)
     else:
-        form = MeasurementDeviceForm(instance=device)
+        form = MeasurementDeviceForm(instance=device, user=request.user)
 
-    return render(request, 'devices/device_form.html', {
-        'form': form,
-        'device': device,
-    })
 
+    return render(request, 'devices/device_form.html', {'form': form})
 
 def device_list(request):
-    query = request.GET.get('q')
-    device_type = request.GET.get('device_type')
-    owner_department = request.GET.get('owner_department')
-    location = request.GET.get('location')
-    status = request.GET.get('status')
-
     devices = MeasurementDevice.objects.all()
-    #поиск по заводскому номеру и наименованию
-    if query:
-        devices = devices.filter(
-            Q(name__icontains=query) | 
-            Q(serial_number__icontains=query)
-        )
-    #фильтр по типу средства измерения
-    if device_type:
-        devices = devices.filter(device_type=device_type)
-    #фильтр по владельцу
-    if owner_department:
-        devices = devices.filter(owner_department=owner_department)
-    #фильтр по местоположению
-    if location:
-        devices = devices.filter(location=location)
-    #фильтр по статусу
-    if status == 'overdue':
-        devices = devices.filter(next_calibration_date__lt=timezone.now().date())
-    elif status == 'valid':
-        devices = devices.filter(next_calibration_date__gte=timezone.now().date())
-    
-    
-    return render(request, 'devices/device_list.html', {
-        'devices': devices,
-        'query': query or '',
-        'device_type': device_type or '',
-        'location': location or '',
-        'status': status or '',
-        })
+    for device in devices:
+        device.can_edit = has_edit_permission(request.user, device)
+    return render(request, 'devices/device_list.html', {'devices': devices})
+
 
 def device_detail(request, pk):
     device = get_object_or_404(MeasurementDevice, pk=pk)
-    return render(request, 'devices/device_detail.html', {'device': device})
+    can_edit = has_edit_permission(request.user, device)
+    return render(request, 'devices/device_detail.html', {
+        'device': device,
+        'can_edit': can_edit
+    })
+
 
 @login_required
 def device_delete(request, pk):
     device = get_object_or_404(MeasurementDevice, pk=pk)
+
+    if not has_edit_permission(request.user, device):
+        raise PermissionDenied("У вас нет прав удалять это СИ")
 
     if request.method == 'POST':
         device.delete()
         return redirect('device_list')
     
     return render(request, 'devices/device_confirm_delete.html', {'device': device})
+
+
+@login_required
+def overdue_device_view(request):
+    devices = get_overdue_devices()
+    return render(request, 'devices/overdue_list.html', {
+        'devices': devices,
+        'today': date.today()
+    })
+            
+@login_required
+def my_devices_view(request):
+    devices = MeasurementDevice.objects.filter(responsible_person=request.user)
+    return render(request, 'devices/my_devices.html', {'devices': devices})
+
+
+def update_measurement_unit(request):
+    form = MeasurementDeviceForm(data=request.POST or None)
+    measure_type = request.POST.get('measure_type')
+    form._update_measurement_unit_field(measure_type)
+
+    return render(request, 'devices/includes/measurement_unit_field.html', {'form': form})
+    

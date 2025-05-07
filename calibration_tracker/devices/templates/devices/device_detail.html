@@ -4,63 +4,111 @@
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2>{{ device.get_name_display }} - {{ device.serial_number }}</h2>
+    <h2>{{ device.name }} - {{ device.serial_number }}</h2>
     <div>
-        <a href="{% url 'device_update' device.pk %}" class="btn btn-primary">Редактировать</a>
-        <a href="{% url 'device_delete' device.pk %}" class="btn btn-danger">Удалить</a>
+        {% if can_edit %}
+            <a href="{% url 'device_update' device.pk %}" class="btn btn-primary">Редактировать</a>
+            <a href="{% url 'device_delete' device.pk %}" class="btn btn-danger">Удалить</a>
+        {% endif %}
         <a href="{% url 'device_list' %}" class="btn btn-secondary">Назад к списку</a>
     </div>
 </div>
 
 <div class="card">
-    <div class="card-body">
-        <h5 class="card-title">Информация о средстве измерения</h5>
-        <table class="table">
-            <tr>
-                <th>Тип средства измерения:</th>
-                <td>{{ device.device_type }}</td>
-            </tr>
-            <tr>
-                <th>Производитель:</th>
-                <td>{{ device.manufacturer }}</td>
-            </tr>
-            <tr>
-                <th>Владелец:</th>
-                <td>{{ device.owner_department }}</td>
-            </tr>
-            <tr>
-                <th>Местоположение:</th>
-                <td>{{ device.location }}</td>
-            </tr>
-            <tr>
-                <th>Ответственный:</th>
-                <td>{{ device.responsible_person }}</td>
-            </tr>
-            <tr>
-                <th>Дата последней поверки:</th>
-                <td>{{ device.last_calibration_date }}</td>
-            </tr>
-            <tr>
-                <th>Дата следующей поверки:</th>
-                <td>{{ device.next_calibration_date }}</td>
-            </tr>
-            <tr>
-                <th>Периодичность поверки:</th>
-                <td>{{ device.get_calibration_interval }}</td>
-            </tr>
-            <tr>
-                <th>Статус:</th>
-                <td><span class="badge {{ device.get_status_label_class }}">{{ device.get_status_display }}</span></td>
-            </tr>
-            <tr>
-                <th>Номер свидетельства:</th>
-                <td>{{ device.certificate_number }}</td>
-            </tr>
-            <tr>
-                <th>Примечание:</th>
-                <td>{{ device.notes }}</td>
-            </tr>
-        </table>
+    <div class="card-header">
+        <h3>{{ device.name }}</h3>
     </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <h4>Основная информация</h4>
+                <table class="table">
+                    <tr>
+                        <th>Тип средства измерения:</th>
+                        <td>{{ device.device_type }} </td>
+                    </tr>
+                    <tr>
+                        <th>Серийный номер:</th>
+                        <td>{{ device.serial_number }}</td>
+                    </tr>
+                    <tr>
+                        <th>Вид измерений:</th>
+                        <td>{{ device.get_measure_type_display }}</td>
+                    </tr>
+                    <tr>
+                        <th>Диапазон измерений:</th>
+                        <td>{{ device.measure_range }} {{ device.measurement_unit }}</td>
+                    </tr>
+                    <tr>
+                        <th>Класс точности:</th>
+                        <td>{{ device.accuracy_class }}</td>
+                    </tr>
+                    <tr>
+                        <th>Производитель:</th>
+                        <td>{{ device.manufacturer }}</td>
+                    </tr>
+                    <tr>
+                        <th>Подразделение:</th>
+                        <td>{{ device.owner_department.name }}</td>
+                    </tr>
+                    <tr>
+                        <th>Ответственный:</th>
+                        <td>{{ device.responsible_person.last_name }} {{ device.responsible_person.first_name }}</td>
+                    </tr>
+                </table>
+            </div>
+            <div class="col-md-6">
+                <h4>Поверка</h4>
+                <table class="table">
+                    <tr>
+                        <th>Статус:</th>
+                        <td>
+                            <span class="badge {{ device.get_status_label_class }}">
+                                {{ device.get_status_display }}
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Дата поверки:</th>
+                        <td>{{ device.last_calibration_date|date:"d.m.Y" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Следующая поверка:</th>
+                        <td>{{ device.next_calibration_date|date:"d.m.Y" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Интервал поверки:</th>
+                        <td>{{ device.get_calibration_interval }}</td>
+                    </tr>
+                    <tr>
+                        <th>Номер свидетельства:</th>
+                        <td>{{ device.certificate_number }}</td>
+                    </tr>
+
+                </table>
+            </div>
+        </div>
+
+        {% if device.notes %}
+        <div class="row mt-3">
+            <div class="col-12">
+                <h4>Примечания</h4>
+                <p>{{ device.notes }}</p>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if device.certificate_file %}
+        <div class="row mt-3">
+            <div class="col-12">
+                <h4>Документы</h4>
+                <a href="{{ device.certificate_file.url }}" class="btn btn-secondary" target="_blank">
+                    Скачать свидетельство
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
 </div>
 {% endblock %}

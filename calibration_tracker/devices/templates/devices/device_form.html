@@ -1,14 +1,123 @@
 {% extends "devices/base.html" %}
-
 {% block title %}Добавить средство измерения{% endblock %}
 
 {% block content %}
-<h2>Добавить средство измерения</h2>
 
-<form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-primary">Сохранить</button>
-    <a href="{% url 'device_list' %}" class="btn btn-secondary">Отмена</a>
+<h2>Редактировать средство измерения</h2>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-group" hx-post="{% url 'update_measurement_unit' %}"
+        hx-target="#unit-field-container"
+        hx-trigger="change"
+        hx-include="[name='measure_type']">
+       {{ form.measure_type }}
+   </div>
+
+
+    {# Основная информация #}
+    <div class="form-group">
+        <label for="{{ form.name.id_for_label }}">{{ form.name.label }}:</label>
+        {{ form.name }}
+        {{ form.name.errors }}
+    </div>
+
+    <div class="form-group">
+        <label for="{{ form.device_type.id_for_label }}">{{ form.device_type.label }}:</label>
+        {{ form.device_type }}
+        {{ form.device_type.errors }}
+    </div>
+
+    <div class="form-group">
+        <label for="{{ form.serial_number.id_for_label }}">{{ form.serial_number.label }}:</label>
+        {{ form.serial_number }}
+        {{ form.serial_number.errors }}
+    </div>
+
+    {# Диапазон #}
+    <div class="form-group">
+        <label for="{{ form.measure_range.id_for_label }}">{{ form.measure_range.label }}:</label>
+        {{ form.measure_range }}
+        {{ form.measure_range.errors }}
+    </div>
+
+    <div class="form-group" id="unit-field-container">
+        {% include "devices/includes/measurement_unit_field.html" %}
+    </div>
+
+    {# Классы точности #}
+    <div class="form-group">
+        <label for="{{ form.accuracy_class.id_for_label }}">{{ form.accuracy_class.label }}:</label>
+        {{ form.accuracy_class }}
+        {{ form.accuracy_class.errors }}
+    </div>
+
+    {# Даты поверки #}
+<div class="form-group">
+    {{ form.last_calibration_date.label_tag }}
+    {{ form.last_calibration_date }}
+    {% if form.last_calibration_date.errors %}
+        <div class="text-danger">{{ form.last_calibration_date.errors }}</div>
+    {% endif %}
+</div>
+
+<div class="form-group">
+    {{ form.next_calibration_date.label_tag }}
+    {{ form.next_calibration_date }}
+    {% if form.next_calibration_date.errors %}
+        <div class="text-danger">{{ form.next_calibration_date.errors }}</div>
+    {% endif %}
+</div>
+    <div class="form-group">
+        <label for="{{ form.calibration_interval.id_for_label }}">{{ form.calibration_interval.label }}:</label>
+        {{ form.calibration_interval }}
+        {{ form.calibration_interval.errors }}
+    </div>
+
+    <div class="form-group">
+        <label for="{{ form.owner_department.id_for_label }}">{{ form.owner_department.label }}:</label>
+        {{ form.owner_department }}
+        {{ form.owner_department.errors }}
+    </div>
+
+    <div class="form-group">
+        <label for="{{ form.location.id_for_label }}">{{ form.location.label }}:</label>
+        {{ form.location }}
+        {{ form.location.errors }}
+    </div>
+
+    <div class="form-group">
+        <label for="{{ form.responsible_person.id_for_label }}">{{ form.responsible_person.label }}:</label>
+        {{ form.responsible_person }}
+        {{ form.responsible_person.errors }}
+    </div>
+
+    <div class="form-group">
+        <label for="{{ form.status.id_for_label }}">{{ form.status.label }}:</label>
+        {{ form.status }}
+        {{ form.status.errors }}
+    </div>
+
+    {# Документы #}
+    <div class="form-group">
+        <label for="{{ form.certificate_number.id_for_label }}">{{ form.certificate_number.label }}:</label>
+        {{ form.certificate_number }}
+        {{ form.certificate_number.errors }}
+    </div>
+
+    <div class="form-group">
+        <label for="{{ form.certificate_file.id_for_label }}">{{ form.certificate_file.label }}:</label>
+        {{ form.certificate_file }}
+        {{ form.certificate_file.errors }}
+    </div>
+
+    {# Примечания #}
+    <div class="form-group">
+        <label for="{{ form.notes.id_for_label }}">{{ form.notes.label }}:</label>
+        {{ form.notes }}
+        {{ form.notes.errors }}
+    </div>
+
+    <button type="submit" name="final_submit" class="btn btn-primary">Сохранить</button>
 </form>
 {% endblock %}

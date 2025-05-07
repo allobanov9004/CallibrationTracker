@@ -1,0 +1,43 @@
+.badge {
+    font-size: 0.9rem;
+    padding: 0.5rem 0.7rem;
+    border-radius: 5rem;
+    color: white;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.btn-block {
+    display: block;
+    width: 100%;
+}
+
+.card {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+.alert {
+    margin-bottom: 1rem;
+}
+
+.navbar {
+    margin-bottom: 1rem;
+}
+
+.container {
+    max-width: 1200px;
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+} 
