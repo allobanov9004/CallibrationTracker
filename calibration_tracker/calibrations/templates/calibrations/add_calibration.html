@@ -1,0 +1,79 @@
+{% extends "devices/base.html" %}
+{% block title %}Добавить событие поверки{% endblock %}
+{% block content %}
+
+<h2>Добавить событие поверки / калибровки</h2>
+<p><strong>Для:</strong> {{ device.name }} — {{ device.serial_number }}</p>
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    
+    <div class="form-group mb-3">
+        {{ form.calibration_type.label_tag }}
+        {{ form.calibration_type }}
+        {% if form.calibration_type.errors %}
+            <div class="text-danger">{{ form.calibration_type.errors }}</div>
+        {% endif %}
+    </div>
+
+    <div class="form-group mb-3">
+        {{ form.performed_by.label_tag }}
+        {{ form.performed_by }}
+        {% if form.performed_by.errors %}
+            <div class="text-danger">{{ form.performed_by.errors }}</div>
+        {% endif %}
+    </div>
+
+    <div class="form-group mb-3">
+        {{ form.calibration_date.label_tag }}
+        {{ form.calibration_date }}
+        {% if form.calibration_date.errors %}
+            <div class="text-danger">{{ form.calibration_date.errors }}</div>
+        {% endif %}
+    </div>
+
+    <div class="form-group mb-3">
+        {{ form.next_calibration_date.label_tag }}
+        {{ form.next_calibration_date }}
+        {% if form.next_calibration_date.errors %}
+            <div class="text-danger">{{ form.next_calibration_date.errors }}</div>
+        {% endif %}
+    </div>
+
+    <div class="form-group mb-3">
+        {{ form.calibration_result.label_tag }}
+        {{ form.calibration_result }}
+        {% if form.calibration_result.errors %}
+            <div class="text-danger">{{ form.calibration_result.errors }}</div>
+        {% endif %}
+    </div>
+
+    <div class="form-group mb-3">
+        {{ form.calibration_certificate_number.label_tag }}
+        {{ form.calibration_certificate_number }}
+        {% if form.calibration_certificate_number.errors %}
+            <div class="text-danger">{{ form.calibration_certificate_number.errors }}</div>
+        {% endif %}
+    </div>
+
+    <div class="form-group mb-3">
+        {{ form.calibration_certificate_file.label_tag }}
+        {{ form.calibration_certificate_file }}
+        {% if form.calibration_certificate_file.errors %}
+            <div class="text-danger">{{ form.calibration_certificate_file.errors }}</div>
+        {% endif %}
+    </div>
+
+    <div class="form-group mb-3">
+        {{ form.notes.label_tag }}
+        {{ form.notes }}
+        {% if form.notes.errors %}
+            <div class="text-danger">{{ form.notes.errors }}</div>
+        {% endif %}
+    </div>
+
+    <button type="submit" class="btn btn-success">Сохранить</button>
+    <a href="{% url 'device_detail' device.pk %}" class="btn btn-secondary">Отмена</a>
+</form>
+
+{% endblock %}

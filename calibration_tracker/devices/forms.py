@@ -1,6 +1,6 @@
 from django import forms
 from .models import MeasurementDevice
-from devices.constants import UNIT_CHOICES
+from devices.constants import UNIT_CHOICES, MEASURE_TYPE
 
 class MeasurementDeviceForm(forms.ModelForm):
     # Списки единиц измерений
@@ -38,7 +38,7 @@ class MeasurementDeviceForm(forms.ModelForm):
         elif self.instance.pk:
             measure_type = self.instance.measure_type
 
-        # Обновляем поле measurement_unit
+
         self._update_measurement_unit_field(measure_type)
 
         # Логика для роли пользователя
@@ -58,6 +58,12 @@ class MeasurementDeviceForm(forms.ModelForm):
             if 'owner_department' in self.fields:
                 self.fields['owner_department'].disabled = True
                 self.fields['owner_department'].help_text = 'Вы не можете изменить подразделение'
+
+        # Только метрологи и админы могут менять даты поверки
+        if role not in ['metrologist', 'admin'] and not self.user.is_superuser:
+            for field_name in ['last_calibration_date', 'next_calibration_date']:
+                if field_name in self.fields:
+                    self.fields[field_name].widget.attrs['readonly'] = True
 
         # Автозаполнение для кладовщика
         if role == 'storekeeper':
@@ -89,6 +95,14 @@ class MeasurementDeviceForm(forms.ModelForm):
         if 'measurement_unit' in self.fields:
             del self.fields['measurement_unit']
 
+        if not measure_type or measure_type not in [x[0] for x in MEASURE_TYPE]:
+            self.fields['measurement_unit'] = forms.ChoiceField(
+                choices=[('', '---------')],
+                required=False,
+                label='Единица измерения',
+            )
+            return
+
         if measure_type == 'other':
             self.fields['measurement_unit'] = forms.CharField(
                 max_length=255,
@@ -104,6 +118,22 @@ class MeasurementDeviceForm(forms.ModelForm):
                 label='Единица измерения',
                 initial=self.instance.measurement_unit
             )
+
+    def clean_last_calibration_date(self):
+        value = self.cleaned_data.get('last_calibration_date')
+
+        if not value and self.instance and self.instance.last_calibration_date:
+            print("clean_last_calibration_date: берем из instance", self.instance.last_calibration_date)
+            return self.instance.last_calibration_date
+        return value
+
+
+    def clean_next_calibration_date(self):
+        value = self.cleaned_data.get('next_calibration_date')
+
+        if not value and self.instance.pk and self.instance.next_calibration_date:
+            return self.instance.next_calibration_date
+        return value
 
     def clean(self):
         cleaned_data = super().clean()

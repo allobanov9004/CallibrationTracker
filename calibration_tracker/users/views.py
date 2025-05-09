@@ -26,7 +26,6 @@ class CustomLoginView(LoginView):
         return response
 
 
-
 @login_required
 def profile_view(request):
     if request.method == 'POST':
@@ -86,3 +85,5 @@ def has_edit_permission(user, device):
         (hasattr(user, 'profile') and user.profile and user.profile.role in ['metrologist', 'admin']) or
         user.is_superuser
     )
+
+
