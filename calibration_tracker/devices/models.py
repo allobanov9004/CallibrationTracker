@@ -32,7 +32,7 @@ class MeasurementDevice(models.Model):
 
     last_calibration_date = models.DateField('Дата поверки', null=True, blank=True)
     next_calibration_date = models.DateField('Дата следующей поверки', null=True, blank=True)
-    calibration_interval = models.IntegerField('Периодичность поверки', null=True, blank=True)
+    calibration_interval = models.IntegerField('Периодичность поверки')
     status = models.CharField('Статус', max_length=255, choices=STATUS, default='active')
 
     certificate_number = models.CharField('Номер свидетельства', max_length=255, null=True, blank=True)
@@ -61,13 +61,18 @@ class MeasurementDevice(models.Model):
         if self.calibration_interval:
             return f"{self.calibration_interval} месяцев"
         return 'Не указано'
+    
+    def update_calibration_date(self):
+        last_event = self.calibration_events.order_by('-calibration_date').first()
+        if last_event and last_event.next_calibration_date:
+            self.next_calibration_date = last_event.next_calibration_date
+            self.save(skip_next_date_update=True)  # ← передаём флаг
+
+
 
     def save(self, *args, **kwargs):
-        # Если указана дата последней поверки и интервал, вычисляем дату следующей поверки
+        # Только если указана last_calibration_date и интервал → обновляем next_calibration_date
         if self.last_calibration_date and self.calibration_interval:
-            # Добавляем количество месяцев к дате последней поверки
             self.next_calibration_date = self.last_calibration_date + relativedelta(months=self.calibration_interval)
-        super().save(*args, **kwargs)
 
-    
-    
+        super().save(*args, **kwargs)

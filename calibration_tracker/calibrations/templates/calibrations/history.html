@@ -1,0 +1,55 @@
+{% extends "devices/base.html" %}
+{% block title %}История поверок {{ device.name }} № {{ device.serial_number }}{% endblock %}
+
+{% block content %}
+<h2>История поверок {{ device.name }} № {{ device.serial_number }}</h2>
+<a href="{% url 'device_detail' device.pk %}" class="btn btn-secondary">Назад</a>
+
+{% if history %}
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Тип поверки</th>
+            <th>Срок</th>
+            <th>Кем проведено</th>
+            <th>Результат</th>
+            <th>Номер свидетельства</th>
+            <th>Свидетельство</th>
+            <th>Примечание</th> 
+        </tr>
+    </thead>
+    <tbody>
+        {% for event in history %}
+        <tr>
+            <td>{{ event.calibration_type }}</td>
+            <td>{{ event.calibration_date }} - {{ event.next_calibration_date }}</td>
+            <td>{{ event.performed_by.name }}</td>
+            <td>
+                {% if event.calibration_result == 'passed' %}
+                    <span class="badge bg-success">Годен</span>
+                {% else %}
+                    <span class="badge bg-danger">Не годен</span>
+                {% endif %}
+            </td>
+            <td>{{ event.calibration_certificate_number }}</td>
+
+            <td>
+                {% if event.calibration_certificate_file %}
+                    <a href="{{ event.calibration_certificate_file.url }}" target="_blank">
+                        Скачать
+                    </a>
+
+            <td>{{ event.note|truncatechars:50 }}</td>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>Нет записей о поверках для этого устройства.</p>
+{% endif %}
+
+{% endblock %}
+
+

@@ -97,6 +97,15 @@
             </div>
         </div>
         {% endif %}
+        <a href="{% url 'calibrations:calibration_history' device.pk %}" class="btn btn-info mt-3">
+        История поверок
+        </a>
+        <!-- Кнопка добавления информации о поверке -->
+        {% if can_edit %}
+        <a href="{% url 'calibrations:add_calibration_event' device.pk %}" class="btn btn-primary mt-3">
+            ➕ Добавить запись о поверке
+        </a>
+        {% endif %}
 
         {% if device.certificate_file %}
         <div class="row mt-3">

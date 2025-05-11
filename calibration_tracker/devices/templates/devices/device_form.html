@@ -5,12 +5,28 @@
 
 <h2>Редактировать средство измерения</h2>
 
+
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        {% if form.errors %}
+        <div class="alert alert-danger">
+            <strong>Пожалуйста, исправьте ошибки:</strong>
+            <ul>
+                {% for field, errors in form.errors.items %}
+                    {% for error in errors %}
+                        <li>{{ field }}: {{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
+        </div>
+     {% endif %}
+
         <div class="form-group" hx-post="{% url 'update_measurement_unit' %}"
-        hx-target="#unit-field-container"
-        hx-trigger="change"
-        hx-include="[name='measure_type']">
+            hx-target="#unit-field-container"
+            hx-trigger="change"
+            hx-include="[name='measure_type']">
        {{ form.measure_type }}
    </div>
 
@@ -53,27 +69,29 @@
     </div>
 
     {# Даты поверки #}
-<div class="form-group">
-    {{ form.last_calibration_date.label_tag }}
-    {{ form.last_calibration_date }}
-    {% if form.last_calibration_date.errors %}
-        <div class="text-danger">{{ form.last_calibration_date.errors }}</div>
-    {% endif %}
-</div>
+    <div class="form-group mb-3">
+        {{ form.last_calibration_date.label_tag }}
+        {{ form.last_calibration_date }}
+        {% if form.last_calibration_date.errors %}
+            <div class="text-danger">{{ form.last_calibration_date.errors }}</div>
+        {% endif %}
+    </div>
+    
+    <div class="form-group mb-3">
+        {{ form.next_calibration_date.label_tag }}
+        {{ form.next_calibration_date }}
+        {% if form.next_calibration_date.errors %}
+            <div class="text-danger">{{ form.next_calibration_date.errors }}</div>
+        {% endif %}
+    </div>
 
-<div class="form-group">
-    {{ form.next_calibration_date.label_tag }}
-    {{ form.next_calibration_date }}
-    {% if form.next_calibration_date.errors %}
-        <div class="text-danger">{{ form.next_calibration_date.errors }}</div>
-    {% endif %}
-</div>
     <div class="form-group">
         <label for="{{ form.calibration_interval.id_for_label }}">{{ form.calibration_interval.label }}:</label>
         {{ form.calibration_interval }}
         {{ form.calibration_interval.errors }}
     </div>
 
+    {# Подразделение #}
     <div class="form-group">
         <label for="{{ form.owner_department.id_for_label }}">{{ form.owner_department.label }}:</label>
         {{ form.owner_department }}
@@ -119,5 +137,6 @@
     </div>
 
     <button type="submit" name="final_submit" class="btn btn-primary">Сохранить</button>
+
 </form>
 {% endblock %}

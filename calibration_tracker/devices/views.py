@@ -27,7 +27,7 @@ def device_create(request):
                 if profile.role == 'storekeeper':
                     device.responsible_person = request.user
                     device.owner_department = profile.department
-            except Profile.DoesNotExist:
+            except profile.DoesNotExist:
                 pass
             device.save()
             return redirect('device_detail', pk=device.pk)
@@ -53,20 +53,22 @@ def device_update(request, pk):
             user=request.user
         )
 
-        if 'measure_type' in request.POST:
+        if 'measure_type' in request.POST and 'final_submit' not in request.POST:
             measure_type = request.POST.get('measure_type')
             form._update_measurement_unit_field(measure_type)
             return render(request, 'devices/device_form.html', {'form': form})
 
 
         if form.is_valid():
+
             form.save()
-            return redirect('device_detail', pk=device.user)
+            return redirect('device_detail', pk=device.pk)
+
     else:
         form = MeasurementDeviceForm(instance=device, user=request.user)
 
-
     return render(request, 'devices/device_form.html', {'form': form})
+
 
 def device_list(request):
     devices = MeasurementDevice.objects.all()
@@ -118,4 +120,5 @@ def update_measurement_unit(request):
     form._update_measurement_unit_field(measure_type)
 
     return render(request, 'devices/includes/measurement_unit_field.html', {'form': form})
+
     
